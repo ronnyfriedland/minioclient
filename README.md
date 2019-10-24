@@ -14,3 +14,8 @@ secretkey = .....
 ssl = <True|False>
 debug = <True|False>
 ```
+
+# Todos:
+
+- Upload (incl Drag'n'Drop)
+- Threading

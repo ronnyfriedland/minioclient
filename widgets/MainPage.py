@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 
 from client.Authentication import Authentication
@@ -30,6 +31,17 @@ class MainPage(QDialog):
         self.list_objects.setContextMenuPolicy(Qt.CustomContextMenu)
         self.list_objects.customContextMenuRequested.connect(self.do_object_context_selected)
 
+        self.menu1 = QMenu()
+        self.download_action = self.menu1.addAction("&Download")
+        self.remove_action = self.menu1.addAction("&Remove")
+
+        self.menu2 = QMenu()
+        self.upload_action = self.menu2.addAction("&Upload")
+        self.upload_action.triggered.connect(self.upload_selected)
+        self.quit_action = self.menu2.addAction("&Quit")
+        self.quit_action.triggered.connect(self.quit_selected)
+
+
         self.status = QLabel()
         self.status.setText("Ready")
 
@@ -46,7 +58,12 @@ class MainPage(QDialog):
         self.setLayout(grid)
         self.setMinimumSize(600, 400)
 
-        self.setStyleSheet(open('darkstyle.qss').read())
+        self.setStyleSheet(open('assets/darkstyle.qss').read())
+        self.setWindowIcon(QIcon('assets/icon_app.png'))
+
+        self.trayIcon = QSystemTrayIcon(QIcon('assets/icon_app.png'), qApp)
+        self.trayIcon.setContextMenu(self.menu2)
+        self.trayIcon.show()
 
         self.show()
 
@@ -77,7 +94,11 @@ class MainPage(QDialog):
             self.list_objects.setItem(row, 0, QTableWidgetItem(object.bucket_name))
             if object.is_dir:
                 self.list_objects.setItem(row, 1, QTableWidgetItem(object.object_name))
+                self.list_objects.setItem(row, 2, QTableWidgetItem(""))
+                self.list_objects.setItem(row, 3, QTableWidgetItem(""))
+                self.list_objects.setItem(row, 4, QTableWidgetItem(""))
             else:
+                self.list_objects.setItem(row, 1, QTableWidgetItem(""))
                 self.list_objects.setItem(row, 2, QTableWidgetItem(object.object_name))
                 self.list_objects.setItem(row, 3, QTableWidgetItem(str(object.last_modified)))
                 self.list_objects.setItem(row, 4, QTableWidgetItem(str(object.size)))
@@ -100,17 +121,11 @@ class MainPage(QDialog):
             self.do_refresh_objects(self.list_buckets.currentText(), self.list_objects.item(row.row(), 1).text())
 
     def do_object_context_selected(self, pos):
-        menu = QMenu()
-        download_action = menu.addAction("&Download")
-        remove_action = menu.addAction("&Remove")
-        quit_action = menu.addAction("&Quit")
-        action = menu.exec_(self.list_objects.mapToGlobal(pos))
-        if action == quit_action:
-            qApp.quit()
-        if action == download_action:
+        action = self.menu1.exec_(self.list_objects.mapToGlobal(pos))
+        if action == self.download_action:
             row = self.list_objects.itemAt(pos).row()
             self.download(self.list_objects.item(row, 0).text(), self.list_objects.item(row, 2).text())
-        if action == remove_action:
+        if action == self.remove_action:
             selection = QMessageBox.question(self, 'Confirm selection', "File will be removed immediately",
                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if selection == QMessageBox.Yes:
@@ -125,3 +140,10 @@ class MainPage(QDialog):
         if save_as_file[0] is not '':
             self.minio.get_object(bucket_name, object_name, save_as_file[0])
             self.status.setText("Ready")
+
+    def upload_selected(self):
+        # TODO: implement me
+        raise Warning("Not implemented yet")
+
+    def quit_selected(self):
+        qApp.quit()
