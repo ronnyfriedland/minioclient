@@ -36,5 +36,8 @@ class MinioClient:
     def get_object(self, bucket_name, object_name, target_name):
         self.minio_client.fget_object(bucket_name, object_name, target_name)
 
+    def put_object(self, bucket_name, object_name, data, length):
+        self.minio_client.put_object(bucket_name, object_name, data, length)
+
     def delete_object(self, bucket_name, object_name):
         self.minio_client.remove_object(bucket_name, object_name)

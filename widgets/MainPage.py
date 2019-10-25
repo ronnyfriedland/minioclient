@@ -1,11 +1,14 @@
+import os
+
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QFileInfo
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 
 from client.Authentication import Authentication
 from client.MinioClient import MinioClient
 from widgets.LoginPage import LoginPage
+
 
 class MainPage(QDialog):
 
@@ -32,15 +35,13 @@ class MainPage(QDialog):
         self.list_objects.customContextMenuRequested.connect(self.do_object_context_selected)
 
         self.menu1 = QMenu()
+        self.upload_action = self.menu1.addAction("&Upload")
         self.download_action = self.menu1.addAction("&Download")
         self.remove_action = self.menu1.addAction("&Remove")
 
         self.menu2 = QMenu()
-        self.upload_action = self.menu2.addAction("&Upload")
-        self.upload_action.triggered.connect(self.upload_selected)
-        self.quit_action = self.menu2.addAction("&Quit")
-        self.quit_action.triggered.connect(self.quit_selected)
-
+        self.menu2.addAction("&Upload").triggered.connect(self.upload_selected)
+        self.menu2.addAction("&Quit").triggered.connect(self.quit_selected)
 
         self.status = QLabel()
         self.status.setText("Ready")
@@ -58,7 +59,7 @@ class MainPage(QDialog):
         self.setLayout(grid)
         self.setMinimumSize(600, 400)
 
-        self.setStyleSheet(open('assets/darkstyle.qss').read())
+        #self.setStyleSheet(open('assets/darkstyle.qss').read())
         self.setWindowIcon(QIcon('assets/icon_app.png'))
 
         self.trayIcon = QSystemTrayIcon(QIcon('assets/icon_app.png'), qApp)
@@ -125,6 +126,8 @@ class MainPage(QDialog):
         if action == self.download_action:
             row = self.list_objects.itemAt(pos).row()
             self.download(self.list_objects.item(row, 0).text(), self.list_objects.item(row, 2).text())
+        if action == self.upload_action:
+            self.upload(self.list_buckets.currentText())
         if action == self.remove_action:
             selection = QMessageBox.question(self, 'Confirm selection', "File will be removed immediately",
                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -132,7 +135,6 @@ class MainPage(QDialog):
                 row = self.list_objects.itemAt(pos).row()
                 self.minio.delete_object(self.list_objects.item(row, 0).text(), self.list_objects.item(row, 2).text())
                 self.do_refresh_objects(self.list_buckets.currentText())
-
 
     def download(self, bucket_name, object_name):
         self.status.setText("Downloading")
@@ -142,8 +144,16 @@ class MainPage(QDialog):
             self.status.setText("Ready")
 
     def upload_selected(self):
-        # TODO: implement me
-        raise Warning("Not implemented yet")
+        self.upload(self.list_buckets.currentText())
+
+    def upload(self, bucket_name):
+        self.status.setText("Uploading")
+        open_file = QFileDialog.getOpenFileName(self, "Open File")
+        if open_file[0] is not '':
+            with open(open_file[0], "rb") as file:
+                self.minio.put_object(bucket_name, QFileInfo(open_file[0]).fileName(), file, os.stat(open_file[0]).st_size)
+                self.status.setText("Ready")
+        self.do_refresh_objects(self.list_buckets.currentText())
 
     def quit_selected(self):
         qApp.quit()
