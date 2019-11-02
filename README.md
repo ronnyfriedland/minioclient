@@ -17,7 +17,5 @@ debug = <True|False>
 
 # Todos:
 
-- Documentation
 - Unit-Tests
-- Upload (using Drag'n'Drop)
 - Threading
