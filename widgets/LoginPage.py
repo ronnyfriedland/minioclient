@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import *
-from client.Authentication import Authentication
+from config.AuthenticationConfiguration import AuthenticationConfiguration
 
 
 class LoginPage(QDialog):
@@ -39,6 +39,6 @@ class LoginPage(QDialog):
         """
         Writes the provided login parameters to configuration.
         """
-        auth = Authentication()
+        auth = AuthenticationConfiguration()
         auth.write_config(self.url.text(), self.access_key.text(), self.secret_key.text())
         self.close()

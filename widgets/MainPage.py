@@ -5,21 +5,27 @@ from PyQt5.QtCore import Qt, QFileInfo
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 
-from client.Authentication import Authentication
+from config.AuthenticationConfiguration import AuthenticationConfiguration
 from client.MinioClient import MinioClient
 from widgets.LoginPage import LoginPage
 
 
 class MainPage(QDialog):
 
-    def __init__(self):
-        super().__init__()
-        auth = Authentication()
+    """
+    Author: Ronny Friedland
+
+    Main dialog
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        auth = AuthenticationConfiguration()
 
         if auth.check_config() is False:
             LoginPage().exec()
 
-        url, access_key, secret_key = auth.auth()
+        url, access_key, secret_key = auth.read_config()
         self.minio = MinioClient(url, access_key, secret_key)
 
         self.list_buckets = QComboBox()
@@ -28,7 +34,7 @@ class MainPage(QDialog):
         self.refresh_buckets = QPushButton("&Refresh")
         self.refresh_buckets.clicked.connect(self.do_refresh_buckets)
 
-        self.list_objects = QTableWidget()
+        self.list_objects = CustomQTableWidget(self)
         self.list_objects.setSelectionMode(QAbstractItemView.SingleSelection)
         self.list_objects.doubleClicked.connect(self.do_object_selected)
         self.list_objects.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -71,38 +77,34 @@ class MainPage(QDialog):
         self.do_refresh_buckets()
         self.do_refresh_objects(self.list_buckets.currentText())
 
-
     def do_refresh_objects(self, text, directory=''):
         self.list_objects.clear()
         self.list_objects.setRowCount(0)
-        self.list_objects.setColumnCount(5)
-        self.list_objects.setHorizontalHeaderItem(0, QTableWidgetItem("Bucket"))
-        self.list_objects.setHorizontalHeaderItem(1, QTableWidgetItem("Directory"))
-        self.list_objects.setHorizontalHeaderItem(2, QTableWidgetItem("Name"))
-        self.list_objects.setHorizontalHeaderItem(3, QTableWidgetItem("Last Modified"))
-        self.list_objects.setHorizontalHeaderItem(4, QTableWidgetItem("Size (Bytes)"))
+        self.list_objects.setColumnCount(4)
+        self.list_objects.setHorizontalHeaderItem(0, QTableWidgetItem("Directory"))
+        self.list_objects.setHorizontalHeaderItem(1, QTableWidgetItem("Name"))
+        self.list_objects.setHorizontalHeaderItem(2, QTableWidgetItem("Last Modified"))
+        self.list_objects.setHorizontalHeaderItem(3, QTableWidgetItem("Size (Bytes)"))
 
         header = self.list_objects.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
 
         row=0
         for object in self.minio.list_objects(text, directory):
             self.list_objects.insertRow(row)
-            self.list_objects.setItem(row, 0, QTableWidgetItem(object.bucket_name))
             if object.is_dir:
-                self.list_objects.setItem(row, 1, QTableWidgetItem(object.object_name))
+                self.list_objects.setItem(row, 0, QTableWidgetItem(object.object_name))
+                self.list_objects.setItem(row, 1, QTableWidgetItem(""))
                 self.list_objects.setItem(row, 2, QTableWidgetItem(""))
                 self.list_objects.setItem(row, 3, QTableWidgetItem(""))
-                self.list_objects.setItem(row, 4, QTableWidgetItem(""))
             else:
-                self.list_objects.setItem(row, 1, QTableWidgetItem(""))
-                self.list_objects.setItem(row, 2, QTableWidgetItem(object.object_name))
-                self.list_objects.setItem(row, 3, QTableWidgetItem(str(object.last_modified)))
-                self.list_objects.setItem(row, 4, QTableWidgetItem(str(object.size)))
+                self.list_objects.setItem(row, 0, QTableWidgetItem(""))
+                self.list_objects.setItem(row, 1, QTableWidgetItem(object.object_name))
+                self.list_objects.setItem(row, 2, QTableWidgetItem(str(object.last_modified)))
+                self.list_objects.setItem(row, 3, QTableWidgetItem(str(object.size)))
 
             row = row + 1
 
@@ -116,7 +118,7 @@ class MainPage(QDialog):
     def do_object_selected(self, row):
         if self.list_objects.item(row.row(), 1) is None:
             # object
-            self.download(self.list_objects.item(row.row(), 0).text(), self.list_objects.item(row.row(), 2).text())
+            self.download(self.list_buckets.currentText(), self.list_objects.item(row.row(), 1).text())
         else:
             # directory
             self.do_refresh_objects(self.list_buckets.currentText(), self.list_objects.item(row.row(), 1).text())
@@ -125,7 +127,7 @@ class MainPage(QDialog):
         action = self.menu1.exec_(self.list_objects.mapToGlobal(pos))
         if action == self.download_action:
             row = self.list_objects.itemAt(pos).row()
-            self.download(self.list_objects.item(row, 0).text(), self.list_objects.item(row, 2).text())
+            self.download(self.list_buckets.currentText(), self.list_objects.item(row, 1).text())
         if action == self.upload_action:
             self.upload(self.list_buckets.currentText())
         if action == self.remove_action:
@@ -133,7 +135,7 @@ class MainPage(QDialog):
                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if selection == QMessageBox.Yes:
                 row = self.list_objects.itemAt(pos).row()
-                self.minio.delete_object(self.list_objects.item(row, 0).text(), self.list_objects.item(row, 2).text())
+                self.minio.delete_object(self.list_buckets.currentText(), self.list_objects.item(row, 1).text())
                 self.do_refresh_objects(self.list_buckets.currentText())
 
     def download(self, bucket_name, object_name):
@@ -144,16 +146,40 @@ class MainPage(QDialog):
             self.status.setText("Ready")
 
     def upload_selected(self):
-        self.upload(self.list_buckets.currentText())
+        upload_file = QFileDialog.getOpenFileName(self, "Open File")
+        self.upload(self.list_buckets.currentText(), upload_file[0])
 
-    def upload(self, bucket_name):
+    def upload(self, bucket_name, upload_file):
         self.status.setText("Uploading")
-        open_file = QFileDialog.getOpenFileName(self, "Open File")
-        if open_file[0] is not '':
-            with open(open_file[0], "rb") as file:
-                self.minio.put_object(bucket_name, QFileInfo(open_file[0]).fileName(), file, os.stat(open_file[0]).st_size)
+        if upload_file is not '':
+            with open(upload_file, "rb") as file:
+                self.minio.put_object(bucket_name, QFileInfo(upload_file).fileName(), file, os.stat(upload_file).st_size)
                 self.status.setText("Ready")
         self.do_refresh_objects(self.list_buckets.currentText())
 
     def quit_selected(self):
         qApp.quit()
+
+
+class CustomQTableWidget(QTableWidget):
+
+    """
+    Author: Ronny Friedland
+
+    Custom QTableWidget to provide drag'n'drop for file upload
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
+        self.setDragDropMode(QAbstractItemView.InternalMove)
+
+    def dragEnterEvent(self, e):
+        e.accept()
+
+    def dropEvent(self, e):
+        selection = QMessageBox.question(self, 'Confirm selection', "File will be uploaded immediately",
+                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if selection == QMessageBox.Yes:
+            for upload_url in e.mimeData().urls():
+                self.parent().upload(self.parent().list_buckets.currentText(), upload_url.toLocalFile())
