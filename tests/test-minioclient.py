@@ -13,9 +13,14 @@ class TestMinioClient(ut.TestCase):
         assert None == result
 
     @patch.object(Minio, 'list_buckets', MagicMock(return_value={}))
-    def test_list_buckets(self):
+    def test_list_buckets_empty(self):
         result = MinioClient(url="localhost:9000", access_key="foo", secret_key="bar").list_buckets()
         assert {} == result
+
+    @patch.object(Minio, 'list_buckets', MagicMock(return_value=["foo", "bar"]))
+    def test_list_buckets(self):
+        result = MinioClient(url="localhost:9000", access_key="foo", secret_key="bar").list_buckets()
+        assert ["foo", "bar"] == result
 
 
 if __name__ == '__main__':
