@@ -2,6 +2,8 @@ from config.Configuration import Configuration
 from minio import Minio, ResponseError
 import urllib3
 import sys
+import threading
+
 
 
 class MinioClient:
@@ -55,7 +57,8 @@ class MinioClient:
         :param object_name: the (unique) name of the object
         :param target_name: the name of the file to store the content to
         """
-        self.minio_client.fget_object(bucket_name, object_name, target_name)
+        t = threading.Thread(target=self.minio_client.fget_object, args=(bucket_name, object_name, target_name))
+        t.start()
 
     def put_object(self, bucket_name, object_name, data, length):
         """
