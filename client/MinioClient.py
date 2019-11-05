@@ -60,15 +60,15 @@ class MinioClient:
         t = threading.Thread(target=self.minio_client.fget_object, args=(bucket_name, object_name, target_name))
         t.start()
 
-    def put_object(self, bucket_name, object_name, data, length):
+    def put_object(self, bucket_name, object_name, file_name):
         """
         Saves data to storage
         :param bucket_name: the bucket
         :param object_name: the object name
-        :param data: the data to store
-        :param length: the size of the new content
+        :param file_name: the file to store
         """
-        self.minio_client.put_object(bucket_name, object_name, data, length)
+        t = threading.Thread(target=self.minio_client.fput_object, args=(bucket_name, object_name, file_name))
+        t.start()
 
     def delete_object(self, bucket_name, object_name):
         """

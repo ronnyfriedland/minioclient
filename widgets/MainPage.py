@@ -1,12 +1,10 @@
-import os
-
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QFileInfo
+from PyQt5.QtCore import QFileInfo, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 
-from config.AuthenticationConfiguration import AuthenticationConfiguration
 from client.MinioClient import MinioClient
+from config.AuthenticationConfiguration import AuthenticationConfiguration
 from widgets.LoginPage import LoginPage
 
 
@@ -152,9 +150,8 @@ class MainPage(QDialog):
     def upload(self, bucket_name, upload_file):
         self.status.setText("Uploading")
         if upload_file is not '':
-            with open(upload_file, "rb") as file:
-                self.minio.put_object(bucket_name, QFileInfo(upload_file).fileName(), file, os.stat(upload_file).st_size)
-                self.status.setText("Ready")
+            self.minio.put_object(bucket_name, QFileInfo(upload_file).fileName(), upload_file)
+            self.status.setText("Ready")
         self.do_refresh_objects(self.list_buckets.currentText())
 
     def quit_selected(self):

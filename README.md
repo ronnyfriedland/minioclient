@@ -18,3 +18,5 @@ debug = <True|False>
 # Todos:
 
 - Threading
+  - show current running processes
+  - show status
