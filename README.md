@@ -17,6 +17,8 @@ debug = <True|False>
 
 # Todos:
 
+- Logging
+- Navigate back to parent directory
 - Threading
   - show current running processes
   - show status

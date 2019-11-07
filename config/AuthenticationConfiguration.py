@@ -1,8 +1,7 @@
-from config.Configuration import Configuration
+from config import Configuration
 
 
-class AuthenticationConfiguration:
-
+class AuthenticationConfiguration(Configuration.Configuration):
     """
     Author: Ronny Friedland
 
@@ -10,14 +9,14 @@ class AuthenticationConfiguration:
     """
 
     def __init__(self):
-        self.configuration = Configuration()
+        super().__init__()
 
     def check_config(self):
         """
         Check if config.ini contains minio settings
         :return: true if configuration contains minio settings
         """
-        return self.configuration.check_config("minio")
+        return super().check_config(section="minio")
 
     def write_config(self, url, access_key, secret_key):
         """
@@ -26,17 +25,19 @@ class AuthenticationConfiguration:
         :param access_key: minio access key
         :param secret_key: minio secret key
         """
-        self.configuration.write_config("minio", {'url': url,
-                                                   'accesskey': access_key,
-                                                   'secretkey': secret_key})
+        super().write_config(section="minio", data={'url': url,
+                                                    'accesskey': access_key,
+                                                    'secretkey': secret_key,
+                                                    'ssl': 'False',
+                                                    'debug': 'False'})
 
     def read_config(self):
         """
         Reads authentication configuration
         :return: url, access_key, secret_key
         """
-        url = self.configuration.read_config("minio", "url")
-        access_key = self.configuration.read_config("minio", "accesskey")
-        secret_key = self.configuration.read_config("minio", "secretkey")
+        url = super().read_config(section="minio", key="url")
+        access_key = super().read_config(section="minio", key="accesskey")
+        secret_key = super().read_config(section="minio", key="secretkey")
 
         return url, access_key, secret_key

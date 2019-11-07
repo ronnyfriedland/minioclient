@@ -16,17 +16,18 @@ class LoginPage(QDialog):
     def __init__(self):
         super().__init__()
 
-        url = QLineEdit()
-        access_key = QLineEdit()
-        secret_key = QLineEdit()
+        self.url = QLineEdit()
+        self.access_key = QLineEdit()
+        self.secret_key = QLineEdit()
+        self.secret_key.setEchoMode(QLineEdit.Password)
 
         layout1 = QGridLayout()
         layout1.addWidget(QLabel('URL'), 0, 0)
-        layout1.addWidget(url, 0, 1)
+        layout1.addWidget(self.url, 0, 1)
         layout1.addWidget(QLabel('Access Key'), 1, 0)
-        layout1.addWidget(access_key, 1, 1)
+        layout1.addWidget(self.access_key, 1, 1)
         layout1.addWidget(QLabel('Secret Key'), 2, 0)
-        layout1.addWidget(secret_key, 2, 1)
+        layout1.addWidget(self.secret_key, 2, 1)
 
         login_button = QPushButton("&Login")
         login_button.clicked.connect(self.save_config)

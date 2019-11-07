@@ -114,12 +114,12 @@ class MainPage(QDialog):
                 self.list_buckets.addItem(bucket.name)
 
     def do_object_selected(self, row):
-        if self.list_objects.item(row.row(), 1) is None:
+        if self.list_objects.item(row.row(), 0).text() is "":
             # object
             self.download(self.list_buckets.currentText(), self.list_objects.item(row.row(), 1).text())
         else:
             # directory
-            self.do_refresh_objects(self.list_buckets.currentText(), self.list_objects.item(row.row(), 1).text())
+            self.do_refresh_objects(self.list_buckets.currentText(), self.list_objects.item(row.row(), 0).text())
 
     def do_object_context_selected(self, pos):
         action = self.menu1.exec_(self.list_objects.mapToGlobal(pos))
@@ -127,10 +127,10 @@ class MainPage(QDialog):
             row = self.list_objects.itemAt(pos).row()
             self.download(self.list_buckets.currentText(), self.list_objects.item(row, 1).text())
         if action == self.upload_action:
-            self.upload(self.list_buckets.currentText())
+            self.upload_selected()
         if action == self.remove_action:
             selection = QMessageBox.question(self, 'Confirm selection', "File will be removed immediately",
-                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if selection == QMessageBox.Yes:
                 row = self.list_objects.itemAt(pos).row()
                 self.minio.delete_object(self.list_buckets.currentText(), self.list_objects.item(row, 1).text())

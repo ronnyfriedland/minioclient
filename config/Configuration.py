@@ -4,7 +4,6 @@ CONFIG_FILE = 'config.ini'
 
 
 class Configuration:
-
     """
     Author: Ronny Friedland
 
@@ -43,7 +42,7 @@ class Configuration:
         :param key: the key to evaluate
         :return: the stored value for the given key
         """
-        if not self.check_config(section):
-            return None
+        #if not self.check_config(section):
+        #    return None
 
         return self.config.get(section, key)
