@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
-from config.AuthenticationConfiguration import AuthenticationConfiguration
-
+from config.MinioConfiguration import MinioConfiguration
+import logging
 
 class LoginPage(QDialog):
 
@@ -40,6 +40,9 @@ class LoginPage(QDialog):
         """
         Writes the provided login parameters to configuration.
         """
-        auth = AuthenticationConfiguration()
-        auth.write_config(self.url.text(), self.access_key.text(), self.secret_key.text())
+        minio_config = MinioConfiguration()
+        minio_config.write_config(self.url.text(), self.access_key.text(), self.secret_key.text())
+
+        logging.info('Configuration created ...')
+
         self.close()

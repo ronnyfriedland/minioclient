@@ -4,9 +4,11 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 
 from client.MinioClient import MinioClient
-from config.AuthenticationConfiguration import AuthenticationConfiguration
+from config.MinioConfiguration import MinioConfiguration
+from config.LoggingConfiguration import LoggingConfiguration
 from widgets.LoginPage import LoginPage
 
+import logging
 
 class MainPage(QDialog):
 
@@ -18,12 +20,15 @@ class MainPage(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        auth = AuthenticationConfiguration()
 
-        if auth.check_config() is False:
+        # init config
+        LoggingConfiguration()
+        minio_config = MinioConfiguration()
+
+        if minio_config.check_config() is False:
             LoginPage().exec()
 
-        url, access_key, secret_key = auth.read_config()
+        url, access_key, secret_key = minio_config.read_config()
         self.minio = MinioClient(url, access_key, secret_key)
 
         self.list_buckets = QComboBox()
@@ -133,7 +138,9 @@ class MainPage(QDialog):
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if selection == QMessageBox.Yes:
                 row = self.list_objects.itemAt(pos).row()
-                self.minio.delete_object(self.list_buckets.currentText(), self.list_objects.item(row, 1).text())
+                delete_file = self.list_objects.item(row, 1).text()
+                self.minio.delete_object(self.list_buckets.currentText(), delete_file)
+                logging.info('Removed file %s' % delete_file)
                 self.do_refresh_objects(self.list_buckets.currentText())
 
     def download(self, bucket_name, object_name):
@@ -142,6 +149,7 @@ class MainPage(QDialog):
         if save_as_file[0] is not '':
             self.minio.get_object(bucket_name, object_name, save_as_file[0])
             self.status.setText("Ready")
+            logging.info('Download finished %s' % save_as_file[0])
 
     def upload_selected(self):
         upload_file = QFileDialog.getOpenFileName(self, "Open File")
@@ -152,7 +160,8 @@ class MainPage(QDialog):
         if upload_file is not '':
             self.minio.put_object(bucket_name, QFileInfo(upload_file).fileName(), upload_file)
             self.status.setText("Ready")
-        self.do_refresh_objects(self.list_buckets.currentText())
+            logging.info('Upload finished %s' % upload_file)
+            self.do_refresh_objects(self.list_buckets.currentText())
 
     def quit_selected(self):
         qApp.quit()

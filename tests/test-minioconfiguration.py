@@ -1,20 +1,20 @@
 import unittest as ut
 import os
 
-from config.AuthenticationConfiguration import AuthenticationConfiguration
+from config.MinioConfiguration import MinioConfiguration
 
 
 class TestAuthenticationConfiguration(ut.TestCase):
 
     def test_init(self):
-        result = AuthenticationConfiguration()
-        assert result.configuration is not None
+        result = MinioConfiguration()
+        assert result.config is not None
 
     def test_has_section(self):
-        assert AuthenticationConfiguration().check_config() == True
+        assert MinioConfiguration().check_config() == True
 
     def test_read(self):
-        assert AuthenticationConfiguration().read_config() == ("1", "2", "3")
+        assert MinioConfiguration().read_config() == ("1", "2", "3")
 
     @classmethod
     def setUpClass(cls):

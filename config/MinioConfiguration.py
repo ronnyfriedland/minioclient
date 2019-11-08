@@ -1,12 +1,14 @@
-from config import Configuration
+from config.Configuration import Configuration
 
 
-class AuthenticationConfiguration(Configuration.Configuration):
+class MinioConfiguration(Configuration):
     """
     Author: Ronny Friedland
 
-    Handles minio authentication configuration
+    Handles minio configuration
     """
+
+    CONFIG_DEFAULTS = {'ssl':'False', 'debug':'True'}
 
     def __init__(self):
         super().__init__()
@@ -25,11 +27,12 @@ class AuthenticationConfiguration(Configuration.Configuration):
         :param access_key: minio access key
         :param secret_key: minio secret key
         """
-        super().write_config(section="minio", data={'url': url,
-                                                    'accesskey': access_key,
-                                                    'secretkey': secret_key,
-                                                    'ssl': 'False',
-                                                    'debug': 'False'})
+        data = self.CONFIG_DEFAULTS
+        data["url"] = url
+        data["accesskey"] = access_key
+        data["secretkey"] = secret_key
+        super().write_config(section="minio", data=data)
+        super().refresh_config()
 
     def read_config(self):
         """

@@ -5,7 +5,6 @@ import sys
 import threading
 
 
-
 class MinioClient:
 
     """

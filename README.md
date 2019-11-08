@@ -8,16 +8,19 @@ The configuration is stored in `config.ini` which is generated after initial sta
 ## Configuration example
 
 ```
+[minio]
 url = <host>:<port>
 accesskey = .....
 secretkey = .....
 ssl = <True|False>
 debug = <True|False>
+
+[logging]
+loglevel = <DEBUG|INFO|WARN|ERROR>
 ```
 
 # Todos:
 
-- Logging
 - Navigate back to parent directory
 - Threading
   - show current running processes
