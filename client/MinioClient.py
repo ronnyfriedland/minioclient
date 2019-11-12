@@ -14,7 +14,7 @@ class MinioClient:
     """
 
     def __init__(self, url, access_key, secret_key):
-        http_client = urllib3.PoolManager(cert_reqs='NONE')
+        http_client = urllib3.PoolManager(cert_reqs='NONE', maxsize=10)
 
         self.configuration = Configuration()
 
