@@ -14,6 +14,7 @@ class LoggingConfiguration(Configuration):
 
     def __init__(self):
         super().__init__()
+        self.refresh_config()
 
     def check_config(self):
         """
