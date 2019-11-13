@@ -23,5 +23,6 @@ loglevel = <DEBUG|INFO|WARN|ERROR>
 
 - Navigate back to parent directory
 - Threading
+  - upload / download
   - show current running processes
   - show status

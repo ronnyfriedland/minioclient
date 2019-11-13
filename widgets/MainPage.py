@@ -8,7 +8,7 @@ from config.MinioConfiguration import MinioConfiguration
 from config.LoggingConfiguration import LoggingConfiguration
 from widgets.LoginPage import LoginPage
 
-import logging
+import logging, time
 
 class MainPage(QDialog):
 
@@ -148,8 +148,7 @@ class MainPage(QDialog):
         save_as_file = QFileDialog.getSaveFileName(self, "Save File")
         if save_as_file[0] is not '':
             self.minio.get_object(bucket_name, object_name, save_as_file[0])
-            self.status.setText("Ready")
-            logging.info('Download finished %s' % save_as_file[0])
+        self.status.setText("Ready")
 
     def upload_selected(self):
         upload_file = QFileDialog.getOpenFileName(self, "Open File")
@@ -158,10 +157,12 @@ class MainPage(QDialog):
     def upload(self, bucket_name, upload_file):
         self.status.setText("Uploading")
         if upload_file is not '':
-            self.minio.put_object(bucket_name, QFileInfo(upload_file).fileName(), upload_file)
-            self.status.setText("Ready")
-            logging.info('Upload finished %s' % upload_file)
-            self.do_refresh_objects(self.list_buckets.currentText())
+            future = self.minio.put_object(bucket_name, QFileInfo(upload_file).fileName(), upload_file)
+            future.add_done_callback(self.upload_finshed)
+        self.status.setText("Ready")
+
+    def upload_finshed(self, future):
+        self.do_refresh_objects(self.list_buckets.currentText())
 
     def quit_selected(self):
         qApp.quit()

@@ -14,7 +14,6 @@ class LoggingConfiguration(Configuration):
 
     def __init__(self):
         super().__init__()
-        self.refresh_config()
 
     def check_config(self):
         """
@@ -34,11 +33,11 @@ class LoggingConfiguration(Configuration):
         else:
             level = "INFO"
 
-        if level is "DEBUG":
+        if level == "DEBUG":
             logging.basicConfig(filename='minioclient.log', level=logging.DEBUG)
-        if level is "INFO":
+        elif level == "INFO":
             logging.basicConfig(filename='minioclient.log', level=logging.INFO)
-        if level is "WARN":
+        elif level == "WARN":
             logging.basicConfig(filename='minioclient.log', level=logging.WARN)
-        if level is "ERROR":
+        else:
             logging.basicConfig(filename='minioclient.log', level=logging.ERROR)

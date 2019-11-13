@@ -1,8 +1,8 @@
 from config.Configuration import Configuration
 from minio import Minio, ResponseError
-import urllib3
-import sys
-import threading
+from concurrent.futures import ThreadPoolExecutor
+
+import urllib3, sys
 
 
 class MinioClient:
@@ -26,6 +26,9 @@ class MinioClient:
 
         if self.configuration.read_config("minio", "debug") == 'True':
             self.minio_client.trace_on(sys.stderr)
+
+        self.executor = ThreadPoolExecutor()
+
 
     def list_buckets(self):
         """
@@ -56,8 +59,7 @@ class MinioClient:
         :param object_name: the (unique) name of the object
         :param target_name: the name of the file to store the content to
         """
-        t = threading.Thread(target=self.minio_client.fget_object, args=(bucket_name, object_name, target_name))
-        t.start()
+        return self.executor.submit(self.minio_client.fget_object, object_name, target_name)
 
     def put_object(self, bucket_name, object_name, file_name):
         """
@@ -66,8 +68,7 @@ class MinioClient:
         :param object_name: the object name
         :param file_name: the file to store
         """
-        t = threading.Thread(target=self.minio_client.fput_object, args=(bucket_name, object_name, file_name))
-        t.start()
+        return self.executor.submit(self.minio_client.fput_object, bucket_name, object_name, file_name)
 
     def delete_object(self, bucket_name, object_name):
         """
