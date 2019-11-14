@@ -43,6 +43,9 @@ class MainPage(QDialog):
         self.list_objects.setContextMenuPolicy(Qt.CustomContextMenu)
         self.list_objects.customContextMenuRequested.connect(self.do_object_context_selected)
 
+        self.path = QPushButton()
+        self.path.clicked.connect(self.do_select_parent_directory)
+
         self.menu1 = QMenu()
         self.upload_action = self.menu1.addAction("&Upload")
         self.download_action = self.menu1.addAction("&Download")
@@ -62,8 +65,9 @@ class MainPage(QDialog):
         grid = QGridLayout()
         grid.setSpacing(10)
         grid.addLayout(layout, 1, 0)
-        grid.addWidget(self.list_objects, 2, 0)
-        grid.addWidget(self.status, 3, 0)
+        grid.addWidget(self.path, 2, 0)
+        grid.addWidget(self.list_objects, 3, 0)
+        grid.addWidget(self.status, 4, 0)
 
         self.setLayout(grid)
         self.setMinimumSize(600, 400)
@@ -81,6 +85,7 @@ class MainPage(QDialog):
         self.do_refresh_objects(self.list_buckets.currentText())
 
     def do_refresh_objects(self, text, directory=''):
+        self.path.setText(directory)
         self.list_objects.clear()
         self.list_objects.setRowCount(0)
         self.list_objects.setColumnCount(4)
@@ -142,6 +147,12 @@ class MainPage(QDialog):
                 self.minio.delete_object(self.list_buckets.currentText(), delete_file)
                 logging.info('Removed file %s' % delete_file)
                 self.do_refresh_objects(self.list_buckets.currentText())
+
+    def do_select_parent_directory(self):
+        parent_path = "/".join(self.path.text()[:-1].split("/")[:-1])
+        self.path.setText(parent_path)
+        self.do_refresh_objects(self.list_buckets.currentText(), parent_path)
+
 
     def download(self, bucket_name, object_name):
         self.status.setText("Downloading")
