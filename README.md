@@ -18,9 +18,3 @@ debug = <True|False>
 [logging]
 loglevel = <DEBUG|INFO|WARN|ERROR>
 ```
-
-# Todos:
-
-- Threading
-  - show current running processes
-  - show status

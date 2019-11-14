@@ -70,7 +70,7 @@ class MainPage(QDialog):
         grid.addWidget(self.status, 4, 0)
 
         self.setLayout(grid)
-        self.setMinimumSize(600, 400)
+        self.setMinimumSize(800, 600)
 
         #self.setStyleSheet(open('assets/darkstyle.qss').read())
         self.setWindowIcon(QIcon('assets/icon_app.png'))
