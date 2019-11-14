@@ -150,9 +150,7 @@ class MainPage(QDialog):
 
     def do_select_parent_directory(self):
         parent_path = "/".join(self.path.text()[:-1].split("/")[:-1])
-        self.path.setText(parent_path)
         self.do_refresh_objects(self.list_buckets.currentText(), parent_path)
-
 
     def download(self, bucket_name, object_name):
         self.status.setText("Downloading")
