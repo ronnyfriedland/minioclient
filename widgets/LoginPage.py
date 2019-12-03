@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from config.MinioConfiguration import MinioConfiguration
 import logging
 
+
 class LoginPage(QDialog):
 
     """
@@ -16,24 +17,24 @@ class LoginPage(QDialog):
     def __init__(self):
         super().__init__()
 
-        self.url = QLineEdit()
-        self.access_key = QLineEdit()
-        self.secret_key = QLineEdit()
-        self.secret_key.setEchoMode(QLineEdit.Password)
+        self._url = QLineEdit()
+        self._access_key = QLineEdit()
+        self._secret_key = QLineEdit()
+        self._secret_key.setEchoMode(QLineEdit.Password)
 
-        layout1 = QGridLayout()
-        layout1.addWidget(QLabel('URL'), 0, 0)
-        layout1.addWidget(self.url, 0, 1)
-        layout1.addWidget(QLabel('Access Key'), 1, 0)
-        layout1.addWidget(self.access_key, 1, 1)
-        layout1.addWidget(QLabel('Secret Key'), 2, 0)
-        layout1.addWidget(self.secret_key, 2, 1)
+        layout = QGridLayout()
+        layout.addWidget(QLabel('URL'), 0, 0)
+        layout.addWidget(self._url, 0, 1)
+        layout.addWidget(QLabel('Access Key'), 1, 0)
+        layout.addWidget(self._access_key, 1, 1)
+        layout.addWidget(QLabel('Secret Key'), 2, 0)
+        layout.addWidget(self._secret_key, 2, 1)
 
         login_button = QPushButton("&Login")
         login_button.clicked.connect(self.save_config)
 
-        layout1.addWidget(login_button)
-        self.setLayout(layout1)
+        layout.addWidget(login_button)
+        self.setLayout(layout)
         self.setWindowTitle("Configure Minio access")
 
     def save_config(self):
@@ -41,8 +42,12 @@ class LoginPage(QDialog):
         Writes the provided login parameters to configuration.
         """
         minio_config = MinioConfiguration()
-        minio_config.write_config(self.url.text(), self.access_key.text(), self.secret_key.text())
+        minio_config.write_config(self._url.text(), self._access_key.text(), self._secret_key.text())
 
         logging.info('Configuration created ...')
 
         self.close()
+
+    @property
+    def access_key(self):
+        return self._access_key

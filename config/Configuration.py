@@ -8,9 +8,10 @@ class Configuration:
     Handles common configuration access
     """
 
-    CONFIG_FILE = 'config.ini'
+    config_file = 'config.ini'
 
-    def __init__(self):
+    def __init__(self, config_file):
+        self.config_file = config_file
         self.config = ConfigParser()
         self.refresh_config()
 
@@ -32,7 +33,7 @@ class Configuration:
             data = dict()
         self.config[section] = data
 
-        with open(self.CONFIG_FILE, 'w') as configfile:
+        with open(self.config_file, 'w') as configfile:
             self.config.write(configfile)
 
     def read_config(self, section, key):
@@ -48,5 +49,5 @@ class Configuration:
         """
         Refreshes the configuration
         """
-        self.config.read(self.CONFIG_FILE)
+        self.config.read(self.config_file)
 

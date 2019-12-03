@@ -1,4 +1,4 @@
-from config.Configuration import Configuration
+from config.MinioConfiguration import MinioConfiguration
 from minio import Minio, ResponseError
 from concurrent.futures import ThreadPoolExecutor
 
@@ -16,15 +16,15 @@ class MinioClient:
     def __init__(self, url, access_key, secret_key):
         http_client = urllib3.PoolManager(cert_reqs='NONE', maxsize=10)
 
-        self.configuration = Configuration()
+        self.configuration = MinioConfiguration()
 
         self.minio_client = Minio(url,
                                   access_key=access_key,
                                   secret_key=secret_key,
-                                  secure=self.configuration.read_config("minio", "ssl") == 'True',
+                                  secure=self.configuration.read_config("ssl") == 'True',
                                   http_client=http_client)
 
-        if self.configuration.read_config("minio", "debug") == 'True':
+        if self.configuration.read_config("debug") == 'True':
             self.minio_client.trace_on(sys.stderr)
 
         self.executor = ThreadPoolExecutor()

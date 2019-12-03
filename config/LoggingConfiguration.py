@@ -12,8 +12,8 @@ class LoggingConfiguration(Configuration):
 
     CONFIG_DEFAULTS = {'loglevel':'INFO'}
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, config_file = Configuration.config_file):
+        super().__init__(config_file)
 
     def check_config(self):
         """

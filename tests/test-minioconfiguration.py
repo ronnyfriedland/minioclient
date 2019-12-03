@@ -7,14 +7,14 @@ from config.MinioConfiguration import MinioConfiguration
 class TestAuthenticationConfiguration(ut.TestCase):
 
     def test_init(self):
-        result = MinioConfiguration()
-        assert result.config is not None
+        result = MinioConfiguration("config-test.ini")
+        self.assertIsNotNone(result.config)
 
     def test_has_section(self):
-        assert MinioConfiguration().check_config() == True
+        self.assertTrue(MinioConfiguration("config-test.ini").check_config())
 
     def test_read(self):
-        assert MinioConfiguration().read_config() == ("1", "2", "3")
+        self.assertEqual(MinioConfiguration("config-test.ini").read_config("url"), "1")
 
     @classmethod
     def setUpClass(cls):
@@ -24,12 +24,12 @@ class TestAuthenticationConfiguration(ut.TestCase):
         accesskey=2
         secretkey=3
         """
-        with open('config.ini', "w") as config_file:
+        with open("config-test.ini", "w") as config_file:
             config_file.write(test_data)
 
     @classmethod
     def tearDownClass(cls):
-        os.remove("config.ini")
+        os.remove("config-test.ini")
 
 
 if __name__ == '__main__':

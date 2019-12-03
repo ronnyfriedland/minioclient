@@ -7,21 +7,21 @@ from config.Configuration import Configuration
 class TestConfiguration(ut.TestCase):
 
     def test_init(self):
-        result = Configuration()
-        assert result.config is not None
+        result = Configuration("config-test.ini")
+        self.assertIsNotNone(result.config)
 
     def test_has_section(self):
-        assert Configuration().check_config("test-unknown") == False
-        assert Configuration().check_config("test") == True
+        self.assertFalse(Configuration("config-test.ini").check_config("test-unknown"))
+        self.assertTrue(Configuration("config-test.ini").check_config("test"))
 
     def test_read(self):
-        assert Configuration().read_config("test", "foo") == "bar"
+        self.assertEqual(Configuration("config-test.ini").read_config("test", "foo"), "bar")
 
     def test_write(self):
-        Configuration().write_config("test", {"foo": "bar"})
+        Configuration("config-test.ini").write_config("test", {"foo": "bar"})
 
-        assert Configuration().check_config("test") is True
-        assert Configuration().read_config("test", "foo") == "bar"
+        self.assertTrue(Configuration("config-test.ini").check_config("test"))
+        self.assertEqual(Configuration("config-test.ini").read_config("test", "foo"), "bar")
 
     @classmethod
     def setUpClass(cls):
@@ -29,12 +29,12 @@ class TestConfiguration(ut.TestCase):
         [test]
         foo=bar
         """
-        with open('config.ini', "w") as config_file:
+        with open('config-test.ini', "w") as config_file:
             config_file.write(test_data)
 
     @classmethod
     def tearDownClass(cls):
-        os.remove("config.ini")
+        os.remove("config-test.ini")
 
 
 if __name__ == '__main__':

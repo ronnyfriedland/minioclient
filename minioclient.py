@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QApplication
 
 from widgets.MainPage import MainPage
 
