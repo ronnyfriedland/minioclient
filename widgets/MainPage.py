@@ -29,7 +29,7 @@ class MainPage(QDialog):
         if minio_config.check_config() is False:
             LoginPage().exec()
 
-        self._minio = MinioClient(minio_config.read_config("url"), minio_config.read_config("access_key"), minio_config.read_config("secret_key"))
+        self._minio = MinioClient(minio_config.read_config("url"), minio_config.read_config("accesskey"), minio_config.read_config("secretkey"))
 
         self._list_buckets = QComboBox()
         self._list_buckets.activated[str].connect(self.do_refresh_objects)
@@ -198,4 +198,4 @@ class CustomQTableWidget(QTableWidget):
                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if selection == QMessageBox.Yes:
             for upload_url in e.mimeData().urls():
-                self.parent().upload(self.parent().list_buckets.currentText(), upload_url.toLocalFile())
+                self.parent().upload(self.parent()._list_buckets.currentText(), upload_url.toLocalFile())

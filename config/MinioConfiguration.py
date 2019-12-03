@@ -34,6 +34,17 @@ class MinioConfiguration(Configuration):
         super().write_config(section="minio", data=data)
         super().refresh_config()
 
+    def read_config(self):
+        """
+        Reads authentication configuration
+        :return: url, access_key, secret_key
+        """
+        url = super().read_config(section="minio", key="url")
+        access_key = super().read_config(section="minio", key="accesskey")
+        secret_key = super().read_config(section="minio", key="secretkey")
+
+        return url, access_key, secret_key
+
     def read_config(self, key):
         """
         Reads authentication configuration key
