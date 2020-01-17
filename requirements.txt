@@ -1,4 +1,4 @@
 minio > 5.0
 urllib3 >= 1.25
 PyQT5 >= 5.10
-pyinstaller = 3.5
+pyinstaller = 3.6
